@@ -1,5 +1,6 @@
 import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
+import Group from "../models/group.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
 
@@ -116,3 +117,31 @@ export const checkAuth = (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
+export const createGroup = async (req, res) => {
+  try {
+    const { groupName, groupMembers } = req.body;
+    const admin = req.user._id;
+    
+    const isGroupExists = await Group.findOne({ groupName, groupAdmin:admin });
+    if (isGroupExists) {
+      return res.status(400).json({ message: "Group already exists" });
+    }
+
+
+
+
+    const newGroup = new Group({
+      groupName,
+      groupAdmin:admin,
+      groupMembers,
+    });
+    await newGroup.save();
+    res.status(201).json(newGroup);
+  } catch (error) {
+    console.log("Error in createGroup controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+
+}

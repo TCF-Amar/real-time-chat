@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useChatStore } from "../store/useChatStore";
 import { useEffect, useRef } from "react";
 
@@ -15,16 +16,41 @@ const ChatContainer = () => {
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
+    isTyping,
+    emitStopTyping,
+    emitTyping,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+
+  const handleTyping = () => {
+    if (!isTyping) {
+      emitTyping();
+    }
+    
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set new timeout to stop typing after 2 seconds of no input
+    typingTimeoutRef.current = setTimeout(() => {
+      emitStopTyping();
+    }, 2000);
+  };
 
   useEffect(() => {
     getMessages(selectedUser._id);
 
     subscribeToMessages();
 
-    return () => unsubscribeFromMessages();
+    return () => {
+      unsubscribeFromMessages();
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
   }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
   useEffect(() => {
@@ -71,6 +97,7 @@ const ChatContainer = () => {
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
+            
             <div className="chat-bubble flex flex-col">
               {message.image && (
                 <img
@@ -83,9 +110,25 @@ const ChatContainer = () => {
             </div>
           </div>
         ))}
+
+        {isTyping && (
+          <div className="chat chat-start">
+            <div className="chat-image avatar">
+              <div className="size-10 rounded-full border">
+                <img
+                  src={selectedUser.profilePic || "/avatar.png"}
+                  alt="profile pic"
+                />
+              </div>
+            </div>
+            <div className="chat-bubble flex items-center gap-2 min-h-8">
+              <span className="loading loading-dots loading-sm"></span>
+            </div>
+          </div>
+        )}
       </div>
 
-      <MessageInput />
+      <MessageInput onType={handleTyping} />
     </div>
   );
 };
