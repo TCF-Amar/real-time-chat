@@ -1,17 +1,4 @@
 # Real-Time Chat Application
-COMPANY: CODTECH ITSOLUTIONS
-
-NAME: Amarjeet Mistri
-
-INTERN ID: CT04WS26
-
-DOMAIN: React.js Web Development
-
-DURATION: 4 WEEKS
-
-MENTOR: NEELA SANTOSH
-
-## Output
 ![Image](https://github.com/user-attachments/assets/7c383b3d-1d25-4eb3-9b46-3e7ba28c34e4)
 A full-stack real-time chat application built with React, Node.js, Socket.IO, and MongoDB.
 
